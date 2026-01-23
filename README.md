@@ -1,0 +1,1796 @@
+[index.html](https://github.com/user-attachments/files/24820245/index.html)
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SANTA BOX — Живой Санта. Персональное волшебство.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Unbounded:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red: #C41E3A;
+            --red-dark: #8B0000;
+            --red-light: #DC143C;
+            --gold: #FFD700;
+            --gold-dark: #DAA520;
+            --gold-light: #FFEC8B;
+            --green: #165B33;
+            --green-dark: #0D3B1F;
+            --green-light: #1E7B46;
+            --cream: #FFF8E7;
+            --cream-dark: #F5E6C8;
+            --white: #FFFFFF;
+            --charcoal: #2C1810;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            background: var(--cream);
+            color: var(--charcoal);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--green-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
+
+        /* Snow Animation */
+        .snowflakes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: white;
+            font-size: 1rem;
+            text-shadow: 0 0 5px rgba(255,255,255,0.8);
+            animation: fall linear infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10px) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        /* Upload Modal */
+        .upload-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(22, 91, 51, 0.95);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .upload-modal.active {
+            display: flex;
+        }
+
+        .upload-container {
+            background: var(--cream);
+            padding: 3rem;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            border: 3px solid var(--gold);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .upload-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            background: var(--red);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .upload-close:hover {
+            background: var(--red-dark);
+            transform: scale(1.1);
+        }
+
+        .upload-title {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            color: var(--green-dark);
+        }
+
+        .upload-dropzone {
+            border: 2px dashed var(--gold);
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--white);
+            border-radius: 8px;
+        }
+
+        .upload-dropzone:hover,
+        .upload-dropzone.dragover {
+            border-color: var(--red);
+            background: rgba(196, 30, 58, 0.05);
+        }
+
+        .upload-dropzone-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .upload-dropzone-text {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 0.85rem;
+            color: var(--green-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-dropzone-hint {
+            font-size: 0.8rem;
+            color: var(--charcoal);
+            opacity: 0.7;
+        }
+
+        .upload-input {
+            display: none;
+        }
+
+        .upload-preview {
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .upload-preview.active {
+            display: block;
+        }
+
+        .upload-preview-img,
+        .upload-preview-video {
+            width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            border: 2px solid var(--gold);
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .upload-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--red);
+            color: var(--white);
+            border: none;
+            font-family: 'Unbounded', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 0.15em;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 4px;
+        }
+
+        .upload-btn:hover {
+            background: var(--red-dark);
+        }
+
+        /* Edit Button */
+        .edit-media-btn {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            padding: 0.6rem 1rem;
+            background: rgba(255,255,255,0.95);
+            border: 2px solid var(--gold);
+            font-family: 'Unbounded', sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 0.1em;
+            color: var(--green-dark);
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            border-radius: 4px;
+        }
+
+        .edit-media-btn:hover {
+            background: var(--red);
+            color: var(--white);
+            border-color: var(--red);
+        }
+
+        .edit-media-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(180deg, var(--green-dark) 0%, rgba(13, 59, 31, 0.95) 100%);
+            border-bottom: 3px solid var(--gold);
+        }
+
+        .logo {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            color: var(--gold);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            font-size: 1.5rem;
+        }
+
+        .nav-center {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-center a {
+            color: var(--cream);
+            text-decoration: none;
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+            transition: color 0.3s;
+        }
+
+        .nav-center a:hover {
+            color: var(--gold);
+        }
+
+        .lang-switcher {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .lang-btn {
+            padding: 0.4rem 0.8rem;
+            border: 1px solid var(--gold);
+            background: transparent;
+            color: var(--cream);
+            font-family: 'Unbounded', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 4px;
+        }
+
+        .lang-btn:hover {
+            background: var(--gold);
+            color: var(--green-dark);
+        }
+
+        .lang-btn.active {
+            background: var(--gold);
+            color: var(--green-dark);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            padding: 8rem 4rem 4rem;
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green) 50%, var(--green-dark) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFD700' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        /* Festive lights decoration */
+        .hero::after {
+            content: '🎄✨🎁✨🎄✨🎁✨🎄✨🎁✨🎄';
+            position: absolute;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 1.5rem;
+            letter-spacing: 2rem;
+            animation: twinkle 2s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            padding-right: 4rem;
+        }
+
+        .hero-pretitle {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.5em;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 0.3s;
+        }
+
+        .hero-title {
+            font-family: 'Unbounded', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 0.5s;
+            color: var(--white);
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+        }
+
+        .hero-title span {
+            color: var(--gold);
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            font-style: italic;
+            color: var(--cream);
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 0.7s;
+        }
+
+        .hero-tagline {
+            font-size: 1.05rem;
+            letter-spacing: 0.08em;
+            color: var(--green-dark);
+            border: 2px solid var(--gold);
+            padding: 1rem 2rem;
+            display: inline-block;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 0.9s;
+            transition: all 0.4s;
+            background: var(--gold);
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .hero-tagline:hover {
+            background: var(--white);
+            color: var(--red);
+            border-color: var(--white);
+            transform: scale(1.05);
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Kiosk Photo Area */
+        .hero-kiosk {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 0.6s;
+        }
+
+        .kiosk-photo-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            aspect-ratio: 3/4;
+            background: linear-gradient(180deg, var(--red) 0%, var(--red-dark) 100%);
+            border: 4px solid var(--gold);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4), 0 0 40px rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+        }
+
+        .kiosk-photo-container::before {
+            content: '🎅';
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3rem;
+            z-index: 10;
+        }
+
+        .kiosk-photo-container img,
+        .kiosk-photo-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .media-placeholder {
+            text-align: center;
+            color: var(--cream);
+            cursor: pointer;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+
+        .media-placeholder:hover {
+            color: var(--gold);
+        }
+
+        .media-placeholder-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+        }
+
+        .media-placeholder-text {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            margin-bottom: 0.5rem;
+        }
+
+        .media-placeholder-hint {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        /* Section Styles */
+        section {
+            padding: 6rem 4rem;
+            position: relative;
+        }
+
+        .section-label {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.4em;
+            color: var(--red);
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-family: 'Unbounded', sans-serif;
+            font-size: clamp(1.8rem, 3.5vw, 3rem);
+            font-weight: 500;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            color: var(--green-dark);
+        }
+
+        /* About Section */
+        .about {
+            background: var(--cream);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .about-text p {
+            font-size: 1.2rem;
+            color: var(--charcoal);
+            margin-bottom: 1.2rem;
+            line-height: 1.8;
+        }
+
+        .about-text .highlight {
+            color: var(--red);
+            font-weight: 600;
+        }
+
+        .about-text .accent {
+            color: var(--green-dark);
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+
+        .feature-list {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .feature-item {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            color: var(--white);
+            padding: 0.6rem 1.2rem;
+            background: var(--red);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .about-visual {
+            display: flex;
+            justify-content: center;
+        }
+
+        .about-kiosk-small {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            aspect-ratio: 3/4;
+            background: linear-gradient(180deg, var(--green), var(--green-dark));
+            border: 3px solid var(--gold);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .about-kiosk-small img,
+        .about-kiosk-small video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            background: linear-gradient(180deg, var(--cream) 0%, var(--cream-dark) 100%);
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .step {
+            position: relative;
+            padding: 2rem 1.5rem;
+            background: var(--white);
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            transition: all 0.4s;
+            text-align: center;
+        }
+
+        .step:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(196, 30, 58, 0.2);
+            border-color: var(--red);
+        }
+
+        .step-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-number {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--white);
+            background: var(--red);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .step-title {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.8rem;
+            color: var(--green-dark);
+        }
+
+        .step-desc {
+            font-size: 0.95rem;
+            color: var(--charcoal);
+            line-height: 1.5;
+        }
+
+        /* Santa Types Section */
+        .santas {
+            background: linear-gradient(180deg, var(--green-dark) 0%, var(--green) 50%, var(--green-dark) 100%);
+            position: relative;
+        }
+
+        .santas::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFD700' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .santas .section-label,
+        .santas .section-title {
+            color: var(--gold);
+        }
+
+        .santa-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .santa-card {
+            position: relative;
+            background: var(--cream);
+            border: 3px solid var(--gold);
+            border-radius: 12px;
+            transition: all 0.5s;
+            overflow: hidden;
+        }
+
+        .santa-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--red), var(--gold), var(--red));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.5s;
+            z-index: 5;
+        }
+
+        .santa-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .santa-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+        }
+
+        .santa-video-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 9/16;
+            background: linear-gradient(180deg, var(--red) 0%, var(--red-dark) 100%);
+            overflow: hidden;
+        }
+
+        .santa-video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(180deg, var(--red) 0%, var(--red-dark) 50%, var(--green-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .video-placeholder:hover {
+            background: linear-gradient(180deg, var(--red-light) 0%, var(--red) 50%, var(--green) 100%);
+        }
+
+        .video-placeholder-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .video-placeholder-text {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 0.15em;
+            margin-bottom: 0.3rem;
+        }
+
+        .video-placeholder-hint {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        .play-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70px;
+            height: 70px;
+            background: var(--gold);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+            z-index: 5;
+        }
+
+        .play-btn:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            background: var(--white);
+        }
+
+        .play-btn::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 22px solid var(--red);
+            border-top: 14px solid transparent;
+            border-bottom: 14px solid transparent;
+            margin-left: 5px;
+        }
+
+        .santa-info {
+            padding: 1.5rem;
+            background: var(--cream);
+        }
+
+        .santa-name {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--red);
+            margin-bottom: 0.3rem;
+        }
+
+        .santa-region {
+            font-size: 0.8rem;
+            color: var(--green-dark);
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .santa-desc {
+            font-size: 1rem;
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* What Child Gets Section */
+        .experience {
+            background: var(--cream);
+            text-align: center;
+        }
+
+        .experience-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .exp-item {
+            padding: 2rem;
+            background: var(--white);
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            transition: all 0.4s;
+        }
+
+        .exp-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(196, 30, 58, 0.15);
+            border-color: var(--red);
+        }
+
+        .exp-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .exp-title {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--green-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .exp-text {
+            font-size: 0.95rem;
+            color: var(--charcoal);
+        }
+
+        /* Franchise Section */
+        .franchise {
+            background: linear-gradient(180deg, var(--cream-dark), var(--cream));
+        }
+
+        .franchise-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            margin-top: 3rem;
+        }
+
+        .franchise-offers h3,
+        .franchise-model h3 {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--green-dark);
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .franchise-list {
+            list-style: none;
+        }
+
+        .franchise-list li {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--gold);
+            font-size: 1rem;
+            color: var(--charcoal);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .franchise-list li::before {
+            content: '🎁';
+        }
+
+        .franchise-model {
+            background: var(--white);
+            padding: 2rem;
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+        }
+
+        .franchise-model p {
+            font-size: 1rem;
+            color: var(--charcoal);
+            margin-bottom: 0.8rem;
+            line-height: 1.6;
+        }
+
+        /* Locations */
+        .locations {
+            background: var(--cream);
+            text-align: center;
+        }
+
+        .locations-grid {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 2.5rem;
+        }
+
+        .location-tag {
+            padding: 0.8rem 1.5rem;
+            border: 2px solid var(--gold);
+            font-family: 'Unbounded', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            color: var(--green-dark);
+            transition: all 0.3s;
+            background: var(--white);
+            border-radius: 20px;
+        }
+
+        .location-tag:hover {
+            border-color: var(--red);
+            color: var(--white);
+            background: var(--red);
+        }
+
+        /* CTA Section */
+        .cta {
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green) 50%, var(--green-dark) 100%);
+            text-align: center;
+            padding: 8rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta::before {
+            content: '🎄 🎅 🎁 ⭐ 🔔 ❄️ 🎄 🎅 🎁 ⭐ 🔔 ❄️';
+            position: absolute;
+            top: 2rem;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 2rem;
+            letter-spacing: 1rem;
+            animation: twinkle 2s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .cta::after {
+            content: '❄️ 🔔 ⭐ 🎁 🎅 🎄 ❄️ 🔔 ⭐ 🎁 🎅 🎄';
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 2rem;
+            letter-spacing: 1rem;
+            animation: twinkle 2s ease-in-out infinite 1s;
+            pointer-events: none;
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-text {
+            font-size: 1.5rem;
+            color: var(--cream);
+            margin-bottom: 0.8rem;
+            line-height: 1.7;
+        }
+
+        .cta-text.highlight {
+            color: var(--gold);
+            font-style: italic;
+            font-weight: 600;
+            font-size: 1.8rem;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .cta-title {
+            font-family: 'Unbounded', sans-serif;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 700;
+            margin: 2rem 0;
+            color: var(--white);
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+        }
+
+        .cta-title span {
+            color: var(--gold);
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1.2rem 3rem;
+            background: var(--gold);
+            border: 3px solid var(--gold);
+            color: var(--green-dark);
+            font-family: 'Unbounded', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.15em;
+            text-decoration: none;
+            transition: all 0.4s;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .cta-button:hover {
+            background: var(--white);
+            color: var(--red);
+            border-color: var(--white);
+            transform: scale(1.05);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--red-dark);
+            padding: 2.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 3px solid var(--gold);
+        }
+
+        .footer-logo {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-text {
+            font-size: 0.85rem;
+            color: var(--cream);
+        }
+
+        /* Language Content */
+        [data-lang] { display: none; }
+        [data-lang="ru"] { display: block; }
+        .feature-item[data-lang="ru"],
+        .location-tag[data-lang="ru"] { display: inline-flex; }
+        .location-tag[data-lang="ru"] { display: inline-block; }
+        .franchise-list li[data-lang="ru"] { display: flex; }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+                padding-top: 7rem;
+            }
+            .hero-content {
+                padding-right: 0;
+                text-align: center;
+            }
+            .hero-kiosk { order: -1; }
+            .kiosk-photo-container { max-width: 350px; }
+        }
+
+        @media (max-width: 1024px) {
+            section { padding: 5rem 2rem; }
+            nav { padding: 1rem 2rem; }
+            .nav-center { display: none; }
+            .about { grid-template-columns: 1fr; gap: 3rem; }
+            .steps-container { grid-template-columns: repeat(2, 1fr); }
+            .santa-grid { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
+            .experience-grid { grid-template-columns: repeat(2, 1fr); }
+            .franchise-content { grid-template-columns: 1fr; gap: 2rem; }
+        }
+
+        @media (max-width: 600px) {
+            .steps-container { grid-template-columns: 1fr; }
+            .experience-grid { grid-template-columns: 1fr; }
+            footer { flex-direction: column; gap: 1rem; text-align: center; }
+            .lang-switcher { gap: 0.3rem; }
+            .lang-btn { padding: 0.3rem 0.6rem; font-size: 0.65rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Snowflakes -->
+    <div class="snowflakes" id="snowflakes"></div>
+
+    <!-- Upload Modal -->
+    <div class="upload-modal" id="uploadModal">
+        <div class="upload-container">
+            <button class="upload-close" id="uploadClose">×</button>
+            <h3 class="upload-title" id="uploadTitle">🎅 Загрузить медиа</h3>
+            <div class="upload-dropzone" id="uploadDropzone">
+                <div class="upload-dropzone-icon">🎁</div>
+                <p class="upload-dropzone-text">Перетащите файл сюда</p>
+                <p class="upload-dropzone-hint">или нажмите для выбора</p>
+                <input type="file" class="upload-input" id="uploadInput" accept="image/*,video/*">
+            </div>
+            <div class="upload-preview" id="uploadPreview">
+                <img class="upload-preview-img" id="previewImg" style="display:none">
+                <video class="upload-preview-video" id="previewVideo" controls style="display:none"></video>
+                <button class="upload-btn" id="uploadConfirm">🎄 ПРИМЕНИТЬ</button>
+            </div>
+        </div>
+    </div>
+
+    <nav>
+        <div class="logo"><span class="logo-icon">🎅</span> SANTA BOX</div>
+        <ul class="nav-center">
+            <li><a href="#about" data-lang="ru">О проекте</a><a href="#about" data-lang="de" style="display:none">Über uns</a><a href="#about" data-lang="en" style="display:none">About</a></li>
+            <li><a href="#how" data-lang="ru">Как это работает</a><a href="#how" data-lang="de" style="display:none">Funktionsweise</a><a href="#how" data-lang="en" style="display:none">How it works</a></li>
+            <li><a href="#santas" data-lang="ru">Санты</a><a href="#santas" data-lang="de" style="display:none">Weihnachtsmänner</a><a href="#santas" data-lang="en" style="display:none">Santas</a></li>
+            <li><a href="#franchise" data-lang="ru">Франшиза</a><a href="#franchise" data-lang="de" style="display:none">Franchise</a><a href="#franchise" data-lang="en" style="display:none">Franchise</a></li>
+            <li><a href="#contact" data-lang="ru">Контакт</a><a href="#contact" data-lang="de" style="display:none">Kontakt</a><a href="#contact" data-lang="en" style="display:none">Contact</a></li>
+        </ul>
+        <div class="lang-switcher">
+            <button class="lang-btn" data-lang-btn="en">EN</button>
+            <button class="lang-btn" data-lang-btn="de">DE</button>
+            <button class="lang-btn active" data-lang-btn="ru">RU</button>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <p class="hero-pretitle" data-lang="ru">🎄 ВОЛШЕБСТВО СТАЛО РЕАЛЬНЫМ 🎄</p>
+            <p class="hero-pretitle" data-lang="de">🎄 MAGIE WURDE WIRKLICHKEIT 🎄</p>
+            <p class="hero-pretitle" data-lang="en">🎄 MAGIC BECAME REAL 🎄</p>
+            
+            <h1 class="hero-title" data-lang="ru"><span>SANTA BOX</span><br>Живой Санта знает имя вашего ребёнка</h1>
+            <h1 class="hero-title" data-lang="de"><span>SANTA BOX</span><br>Der lebendige Weihnachtsmann kennt den Namen Ihres Kindes</h1>
+            <h1 class="hero-title" data-lang="en"><span>SANTA BOX</span><br>Live Santa knows your child's name</h1>
+            
+            <p class="hero-subtitle" data-lang="ru">Персональное поздравление + живой разговор с Сантой. Ребёнок запомнит это навсегда.</p>
+            <p class="hero-subtitle" data-lang="de">Persönliche Grüße + Live-Gespräch mit dem Weihnachtsmann. Ihr Kind wird es nie vergessen.</p>
+            <p class="hero-subtitle" data-lang="en">Personal greeting + live conversation with Santa. Your child will remember it forever.</p>
+            
+            <a href="#contact" class="hero-tagline" data-lang="ru">🎁 Подарите ребёнку настоящее чудо</a>
+            <a href="#contact" class="hero-tagline" data-lang="de">🎁 Schenken Sie Ihrem Kind ein echtes Wunder</a>
+            <a href="#contact" class="hero-tagline" data-lang="en">🎁 Give your child a real miracle</a>
+        </div>
+        
+        <div class="hero-kiosk">
+            <div class="kiosk-photo-container" id="kioskMain">
+                <div class="media-placeholder" data-upload="kiosk-main">
+                    <div class="media-placeholder-icon">🎅</div>
+                    <p class="media-placeholder-text" data-lang="ru">ЗАГРУЗИТЬ ФОТО КИОСКА</p>
+                    <p class="media-placeholder-text" data-lang="de">KIOSK-FOTO HOCHLADEN</p>
+                    <p class="media-placeholder-text" data-lang="en">UPLOAD KIOSK PHOTO</p>
+                    <p class="media-placeholder-hint" data-lang="ru">Нажмите или перетащите</p>
+                    <p class="media-placeholder-hint" data-lang="de">Klicken oder ziehen</p>
+                    <p class="media-placeholder-hint" data-lang="en">Click or drag</p>
+                </div>
+                <button class="edit-media-btn" data-upload="kiosk-main" style="display:none">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    <span data-lang="ru">ИЗМЕНИТЬ</span>
+                    <span data-lang="de">ÄNDERN</span>
+                    <span data-lang="en">CHANGE</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="about" id="about">
+        <div class="about-text">
+            <p class="section-label" data-lang="ru">✨ РОЖДЕСТВЕНСКОЕ ВОЛШЕБСТВО НОВОГО ПОКОЛЕНИЯ ✨</p>
+            <p class="section-label" data-lang="de">✨ WEIHNACHTSZAUBER DER NEUEN GENERATION ✨</p>
+            <p class="section-label" data-lang="en">✨ NEXT-GENERATION CHRISTMAS MAGIC ✨</p>
+            
+            <h2 class="section-title" data-lang="ru">Санта назовёт ребёнка по имени. И ответит на любой вопрос.</h2>
+            <h2 class="section-title" data-lang="de">Der Weihnachtsmann nennt Ihr Kind beim Namen. Und beantwortet jede Frage.</h2>
+            <h2 class="section-title" data-lang="en">Santa will call your child by name. And answer any question.</h2>
+            
+            <div data-lang="ru">
+                <p><span class="highlight">SANTA BOX</span> — это не аниматор и не видеозапись. Это <span class="accent">живой Санта</span>, который появляется в полный рост прямо перед ребёнком.</p>
+                <p>Вы вводите имя ребёнка — и Санта лично поздравляет его, называя по имени. После поздравления ребёнок может <span class="accent">задать Санте любой вопрос</span> — и получить настоящий ответ.</p>
+                <p>Голографические технологии + искусственный интеллект = <span class="accent">момент, который ребёнок запомнит на всю жизнь.</span></p>
+            </div>
+            <div data-lang="de">
+                <p><span class="highlight">SANTA BOX</span> ist kein Animator und keine Videoaufnahme. Es ist ein <span class="accent">lebendiger Weihnachtsmann</span>, der in voller Größe direkt vor dem Kind erscheint.</p>
+                <p>Sie geben den Namen des Kindes ein — und der Weihnachtsmann gratuliert persönlich mit Namen. Nach der Begrüßung kann das Kind <span class="accent">dem Weihnachtsmann jede Frage stellen</span> — und eine echte Antwort bekommen.</p>
+                <p>Holographische Technologien + künstliche Intelligenz = <span class="accent">ein Moment, den das Kind nie vergessen wird.</span></p>
+            </div>
+            <div data-lang="en">
+                <p><span class="highlight">SANTA BOX</span> is not an animator or video recording. It's a <span class="accent">live Santa</span> who appears life-size right in front of the child.</p>
+                <p>You enter the child's name — and Santa personally greets them by name. After the greeting, the child can <span class="accent">ask Santa any question</span> — and get a real answer.</p>
+                <p>Holographic technologies + artificial intelligence = <span class="accent">a moment the child will remember forever.</span></p>
+            </div>
+            
+            <div class="feature-list">
+                <span class="feature-item" data-lang="ru">🎅 Санта в полный рост</span>
+                <span class="feature-item" data-lang="ru">📛 Знает имя ребёнка</span>
+                <span class="feature-item" data-lang="ru">💬 Отвечает на вопросы</span>
+                <span class="feature-item" data-lang="ru">✨ Каждый раз уникально</span>
+                <span class="feature-item" data-lang="de">🎅 Weihnachtsmann in Lebensgröße</span>
+                <span class="feature-item" data-lang="de">📛 Kennt den Namen des Kindes</span>
+                <span class="feature-item" data-lang="de">💬 Beantwortet Fragen</span>
+                <span class="feature-item" data-lang="de">✨ Jedes Mal einzigartig</span>
+                <span class="feature-item" data-lang="en">🎅 Life-size Santa</span>
+                <span class="feature-item" data-lang="en">📛 Knows child's name</span>
+                <span class="feature-item" data-lang="en">💬 Answers questions</span>
+                <span class="feature-item" data-lang="en">✨ Unique every time</span>
+            </div>
+        </div>
+        
+        <div class="about-visual">
+            <div class="about-kiosk-small" id="kioskSecondary">
+                <div class="media-placeholder" data-upload="kiosk-secondary">
+                    <div class="media-placeholder-icon">🎄</div>
+                    <p class="media-placeholder-text" style="font-size:0.65rem" data-lang="ru">ЗАГРУЗИТЬ</p>
+                    <p class="media-placeholder-text" style="font-size:0.65rem" data-lang="de">HOCHLADEN</p>
+                    <p class="media-placeholder-text" style="font-size:0.65rem" data-lang="en">UPLOAD</p>
+                </div>
+                <button class="edit-media-btn" data-upload="kiosk-secondary" style="display:none">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works" id="how">
+        <p class="section-label" data-lang="ru">🎁 ПРОСТАЯ МАГИЯ 🎁</p>
+        <p class="section-label" data-lang="de">🎁 EINFACHE MAGIE 🎁</p>
+        <p class="section-label" data-lang="en">🎁 SIMPLE MAGIC 🎁</p>
+        
+        <h2 class="section-title" data-lang="ru">4 шага до встречи с Сантой</h2>
+        <h2 class="section-title" data-lang="de">4 Schritte zum Treffen mit dem Weihnachtsmann</h2>
+        <h2 class="section-title" data-lang="en">4 steps to meet Santa</h2>
+        
+        <div class="steps-container">
+            <div class="step">
+                <span class="step-number">ШАГ 1</span>
+                <div class="step-icon">🎅</div>
+                <h3 class="step-title" data-lang="ru">Выберите Санту</h3>
+                <h3 class="step-title" data-lang="de">Wählen Sie den Weihnachtsmann</h3>
+                <h3 class="step-title" data-lang="en">Choose Santa</h3>
+                <p class="step-desc" data-lang="ru">Классический, современный или национальный — на любой вкус</p>
+                <p class="step-desc" data-lang="de">Klassisch, modern oder national — für jeden Geschmack</p>
+                <p class="step-desc" data-lang="en">Classic, modern or national — for every taste</p>
+            </div>
+            <div class="step">
+                <span class="step-number">ШАГ 2</span>
+                <div class="step-icon">📝</div>
+                <h3 class="step-title" data-lang="ru">Введите имя</h3>
+                <h3 class="step-title" data-lang="de">Namen eingeben</h3>
+                <h3 class="step-title" data-lang="en">Enter name</h3>
+                <p class="step-desc" data-lang="ru">Имя ребёнка — и Санта обратится лично к нему</p>
+                <p class="step-desc" data-lang="de">Name des Kindes — der Weihnachtsmann spricht persönlich an</p>
+                <p class="step-desc" data-lang="en">Child's name — Santa will address them personally</p>
+            </div>
+            <div class="step">
+                <span class="step-number">ШАГ 3</span>
+                <div class="step-icon">🎄</div>
+                <h3 class="step-title" data-lang="ru">Войдите в киоск</h3>
+                <h3 class="step-title" data-lang="de">Betreten Sie den Kiosk</h3>
+                <h3 class="step-title" data-lang="en">Enter the booth</h3>
+                <p class="step-desc" data-lang="ru">Дверь закрывается. Свет гаснет. Начинается волшебство...</p>
+                <p class="step-desc" data-lang="de">Die Tür schließt sich. Das Licht erlischt. Die Magie beginnt...</p>
+                <p class="step-desc" data-lang="en">Door closes. Lights fade. Magic begins...</p>
+            </div>
+            <div class="step">
+                <span class="step-number">ШАГ 4</span>
+                <div class="step-icon">💬</div>
+                <h3 class="step-title" data-lang="ru">Говорите с Сантой</h3>
+                <h3 class="step-title" data-lang="de">Sprechen Sie mit dem Weihnachtsmann</h3>
+                <h3 class="step-title" data-lang="en">Talk to Santa</h3>
+                <p class="step-desc" data-lang="ru">Санта поздравляет по имени, потом отвечает на вопросы</p>
+                <p class="step-desc" data-lang="de">Der Weihnachtsmann gratuliert namentlich, beantwortet dann Fragen</p>
+                <p class="step-desc" data-lang="en">Santa greets by name, then answers questions</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="santas" id="santas">
+        <p class="section-label" data-lang="ru">🎅 ВЫБЕРИТЕ СВОЕГО САНТУ 🎅</p>
+        <p class="section-label" data-lang="de">🎅 WÄHLEN SIE IHREN WEIHNACHTSMANN 🎅</p>
+        <p class="section-label" data-lang="en">🎅 CHOOSE YOUR SANTA 🎅</p>
+        
+        <h2 class="section-title" data-lang="ru">Каждый Санта уникален. Как и ваш ребёнок.</h2>
+        <h2 class="section-title" data-lang="de">Jeder Weihnachtsmann ist einzigartig. Wie Ihr Kind.</h2>
+        <h2 class="section-title" data-lang="en">Every Santa is unique. Just like your child.</h2>
+        
+        <div class="santa-grid">
+            <!-- Classic Santa -->
+            <div class="santa-card">
+                <div class="santa-video-container" id="videoSantaClassic">
+                    <div class="video-placeholder" data-upload="video-santa-classic">
+                        <div class="video-placeholder-icon">🎅</div>
+                        <p class="video-placeholder-text">CLASSIC SANTA</p>
+                        <p class="video-placeholder-hint" data-lang="ru">Загрузить видео</p>
+                        <p class="video-placeholder-hint" data-lang="de">Video hochladen</p>
+                        <p class="video-placeholder-hint" data-lang="en">Upload video</p>
+                    </div>
+                    <div class="play-btn" style="display:none"></div>
+                    <button class="edit-media-btn" data-upload="video-santa-classic" style="display:none">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                </div>
+                <div class="santa-info">
+                    <h3 class="santa-name" data-lang="ru">Классический Санта</h3>
+                    <h3 class="santa-name" data-lang="de">Klassischer Weihnachtsmann</h3>
+                    <h3 class="santa-name" data-lang="en">Classic Santa</h3>
+                    <p class="santa-region" data-lang="ru">ТРАДИЦИОННЫЙ ОБРАЗ</p>
+                    <p class="santa-region" data-lang="de">TRADITIONELLES BILD</p>
+                    <p class="santa-region" data-lang="en">TRADITIONAL IMAGE</p>
+                    <p class="santa-desc" data-lang="ru">Красный костюм, белая борода, добрые глаза — тот самый Санта из детских мечтаний</p>
+                    <p class="santa-desc" data-lang="de">Rotes Kostüm, weißer Bart, gütige Augen — der Weihnachtsmann aus Kinderträumen</p>
+                    <p class="santa-desc" data-lang="en">Red suit, white beard, kind eyes — the Santa from childhood dreams</p>
+                </div>
+            </div>
+            
+            <!-- Ded Moroz -->
+            <div class="santa-card">
+                <div class="santa-video-container" id="videoSantaRussian">
+                    <div class="video-placeholder" data-upload="video-santa-russian">
+                        <div class="video-placeholder-icon">❄️</div>
+                        <p class="video-placeholder-text">ДЕД МОРОЗ</p>
+                        <p class="video-placeholder-hint" data-lang="ru">Загрузить видео</p>
+                        <p class="video-placeholder-hint" data-lang="de">Video hochladen</p>
+                        <p class="video-placeholder-hint" data-lang="en">Upload video</p>
+                    </div>
+                    <div class="play-btn" style="display:none"></div>
+                    <button class="edit-media-btn" data-upload="video-santa-russian" style="display:none">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                </div>
+                <div class="santa-info">
+                    <h3 class="santa-name" data-lang="ru">Дед Мороз</h3>
+                    <h3 class="santa-name" data-lang="de">Väterchen Frost</h3>
+                    <h3 class="santa-name" data-lang="en">Ded Moroz</h3>
+                    <p class="santa-region" data-lang="ru">РОССИЯ И СНГ</p>
+                    <p class="santa-region" data-lang="de">RUSSLAND UND GUS</p>
+                    <p class="santa-region" data-lang="en">RUSSIA AND CIS</p>
+                    <p class="santa-desc" data-lang="ru">Синяя шуба, волшебный посох, морозные узоры — настоящий хозяин зимы</p>
+                    <p class="santa-desc" data-lang="de">Blauer Mantel, Zauberstab, frostige Muster — der wahre Herr des Winters</p>
+                    <p class="santa-desc" data-lang="en">Blue coat, magic staff, frosty patterns — the true master of winter</p>
+                </div>
+            </div>
+            
+            <!-- German Weihnachtsmann -->
+            <div class="santa-card">
+                <div class="santa-video-container" id="videoSantaGerman">
+                    <div class="video-placeholder" data-upload="video-santa-german">
+                        <div class="video-placeholder-icon">🎄</div>
+                        <p class="video-placeholder-text">WEIHNACHTSMANN</p>
+                        <p class="video-placeholder-hint" data-lang="ru">Загрузить видео</p>
+                        <p class="video-placeholder-hint" data-lang="de">Video hochladen</p>
+                        <p class="video-placeholder-hint" data-lang="en">Upload video</p>
+                    </div>
+                    <div class="play-btn" style="display:none"></div>
+                    <button class="edit-media-btn" data-upload="video-santa-german" style="display:none">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                </div>
+                <div class="santa-info">
+                    <h3 class="santa-name" data-lang="ru">Вайнахтсман</h3>
+                    <h3 class="santa-name" data-lang="de">Weihnachtsmann</h3>
+                    <h3 class="santa-name" data-lang="en">Weihnachtsmann</h3>
+                    <p class="santa-region" data-lang="ru">ГЕРМАНИЯ</p>
+                    <p class="santa-region" data-lang="de">DEUTSCHLAND</p>
+                    <p class="santa-region" data-lang="en">GERMANY</p>
+                    <p class="santa-desc" data-lang="ru">Немецкий рождественский волшебник с мешком подарков и книгой желаний</p>
+                    <p class="santa-desc" data-lang="de">Deutscher Weihnachtszauberer mit Geschenksack und Wunschbuch</p>
+                    <p class="santa-desc" data-lang="en">German Christmas wizard with gift sack and wish book</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="experience">
+        <p class="section-label" data-lang="ru">⭐ ЧТО ПОЛУЧАЕТ РЕБЁНОК ⭐</p>
+        <p class="section-label" data-lang="de">⭐ WAS DAS KIND BEKOMMT ⭐</p>
+        <p class="section-label" data-lang="en">⭐ WHAT THE CHILD GETS ⭐</p>
+        
+        <h2 class="section-title" data-lang="ru">Момент, который останется в памяти навсегда</h2>
+        <h2 class="section-title" data-lang="de">Ein Moment, der für immer in Erinnerung bleibt</h2>
+        <h2 class="section-title" data-lang="en">A moment that will stay in memory forever</h2>
+        
+        <div class="experience-grid">
+            <div class="exp-item">
+                <div class="exp-icon">📛</div>
+                <h3 class="exp-title" data-lang="ru">Личное обращение</h3>
+                <h3 class="exp-title" data-lang="de">Persönliche Anrede</h3>
+                <h3 class="exp-title" data-lang="en">Personal address</h3>
+                <p class="exp-text" data-lang="ru">Санта знает и называет имя ребёнка</p>
+                <p class="exp-text" data-lang="de">Weihnachtsmann kennt und nennt den Namen des Kindes</p>
+                <p class="exp-text" data-lang="en">Santa knows and calls the child's name</p>
+            </div>
+            <div class="exp-item">
+                <div class="exp-icon">🎁</div>
+                <h3 class="exp-title" data-lang="ru">Уникальное поздравление</h3>
+                <h3 class="exp-title" data-lang="de">Einzigartige Grüße</h3>
+                <h3 class="exp-title" data-lang="en">Unique greeting</h3>
+                <p class="exp-text" data-lang="ru">Персональное послание, не шаблон</p>
+                <p class="exp-text" data-lang="de">Persönliche Nachricht, keine Vorlage</p>
+                <p class="exp-text" data-lang="en">Personal message, not a template</p>
+            </div>
+            <div class="exp-item">
+                <div class="exp-icon">💬</div>
+                <h3 class="exp-title" data-lang="ru">Живой диалог</h3>
+                <h3 class="exp-title" data-lang="de">Live-Dialog</h3>
+                <h3 class="exp-title" data-lang="en">Live dialogue</h3>
+                <p class="exp-text" data-lang="ru">Можно задать вопросы и получить ответы</p>
+                <p class="exp-text" data-lang="de">Fragen stellen und Antworten erhalten</p>
+                <p class="exp-text" data-lang="en">Ask questions and get answers</p>
+            </div>
+            <div class="exp-item">
+                <div class="exp-icon">✨</div>
+                <h3 class="exp-title" data-lang="ru">Вера в чудо</h3>
+                <h3 class="exp-title" data-lang="de">Glaube an Wunder</h3>
+                <h3 class="exp-title" data-lang="en">Belief in magic</h3>
+                <p class="exp-text" data-lang="ru">Ребёнок видит: Санта — настоящий!</p>
+                <p class="exp-text" data-lang="de">Das Kind sieht: Weihnachtsmann ist echt!</p>
+                <p class="exp-text" data-lang="en">Child sees: Santa is real!</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="franchise" id="franchise">
+        <p class="section-label" data-lang="ru">🎄 БИЗНЕС-ВОЗМОЖНОСТЬ 🎄</p>
+        <p class="section-label" data-lang="de">🎄 GESCHÄFTSMÖGLICHKEIT 🎄</p>
+        <p class="section-label" data-lang="en">🎄 BUSINESS OPPORTUNITY 🎄</p>
+        
+        <h2 class="section-title" data-lang="ru">Станьте официальным партнёром Санты</h2>
+        <h2 class="section-title" data-lang="de">Werden Sie offizieller Partner des Weihnachtsmanns</h2>
+        <h2 class="section-title" data-lang="en">Become Santa's official partner</h2>
+        
+        <div class="franchise-content">
+            <div class="franchise-offers">
+                <h3 data-lang="ru">🎁 Франшиза включает</h3>
+                <h3 data-lang="de">🎁 Franchise beinhaltet</h3>
+                <h3 data-lang="en">🎁 Franchise includes</h3>
+                <ul class="franchise-list">
+                    <li data-lang="ru">Готовый рождественский киоск под ключ</li>
+                    <li data-lang="ru">Все виды Сант (классика, Дед Мороз, национальные)</li>
+                    <li data-lang="ru">Технологии персонализации (ввод имени)</li>
+                    <li data-lang="ru">ИИ для живого диалога</li>
+                    <li data-lang="ru">Праздничное оформление и декор</li>
+                    <li data-lang="ru">Маркетинговые материалы</li>
+                    <li data-lang="de">Schlüsselfertiger Weihnachtskiosk</li>
+                    <li data-lang="de">Alle Weihnachtsmann-Typen (klassisch, Väterchen Frost, national)</li>
+                    <li data-lang="de">Personalisierungstechnologien (Namenseingabe)</li>
+                    <li data-lang="de">KI für Live-Dialog</li>
+                    <li data-lang="de">Festliche Dekoration</li>
+                    <li data-lang="de">Marketingmaterialien</li>
+                    <li data-lang="en">Turnkey Christmas kiosk</li>
+                    <li data-lang="en">All Santa types (classic, Ded Moroz, national)</li>
+                    <li data-lang="en">Personalization technologies (name input)</li>
+                    <li data-lang="en">AI for live dialogue</li>
+                    <li data-lang="en">Festive decoration</li>
+                    <li data-lang="en">Marketing materials</li>
+                </ul>
+            </div>
+            <div class="franchise-model">
+                <h3 data-lang="ru">⭐ Сезонный хит</h3>
+                <h3 data-lang="de">⭐ Saisonaler Hit</h3>
+                <h3 data-lang="en">⭐ Seasonal hit</h3>
+                <div data-lang="ru">
+                    <p><strong>Пиковый сезон:</strong> ноябрь — январь = максимальный поток</p>
+                    <p><strong>Высокий средний чек:</strong> родители готовы платить за волшебство</p>
+                    <p><strong>Повторные визиты:</strong> дети хотят вернуться к Санте</p>
+                    <p><strong>Вирусный эффект:</strong> родители снимают видео и делятся</p>
+                </div>
+                <div data-lang="de">
+                    <p><strong>Hochsaison:</strong> November — Januar = maximaler Besucherstrom</p>
+                    <p><strong>Hoher Durchschnittspreis:</strong> Eltern zahlen gerne für Magie</p>
+                    <p><strong>Wiederholte Besuche:</strong> Kinder wollen zum Weihnachtsmann zurück</p>
+                    <p><strong>Viraler Effekt:</strong> Eltern filmen und teilen</p>
+                </div>
+                <div data-lang="en">
+                    <p><strong>Peak season:</strong> November — January = maximum traffic</p>
+                    <p><strong>High average check:</strong> parents pay gladly for magic</p>
+                    <p><strong>Repeat visits:</strong> children want to return to Santa</p>
+                    <p><strong>Viral effect:</strong> parents film and share</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="locations">
+        <p class="section-label" data-lang="ru">📍 ИДЕАЛЬНЫЕ ЛОКАЦИИ 📍</p>
+        <p class="section-label" data-lang="de">📍 IDEALE STANDORTE 📍</p>
+        <p class="section-label" data-lang="en">📍 IDEAL LOCATIONS 📍</p>
+        
+        <h2 class="section-title" data-lang="ru">Где Санта найдёт детей</h2>
+        <h2 class="section-title" data-lang="de">Wo der Weihnachtsmann Kinder findet</h2>
+        <h2 class="section-title" data-lang="en">Where Santa will find children</h2>
+        
+        <div class="locations-grid">
+            <span class="location-tag" data-lang="ru">🛍️ Торговые центры</span>
+            <span class="location-tag" data-lang="ru">🎄 Рождественские ярмарки</span>
+            <span class="location-tag" data-lang="ru">🎢 Парки развлечений</span>
+            <span class="location-tag" data-lang="ru">✈️ Аэропорты</span>
+            <span class="location-tag" data-lang="ru">🏨 Отели и курорты</span>
+            <span class="location-tag" data-lang="ru">🎪 Детские центры</span>
+            <span class="location-tag" data-lang="de">🛍️ Einkaufszentren</span>
+            <span class="location-tag" data-lang="de">🎄 Weihnachtsmärkte</span>
+            <span class="location-tag" data-lang="de">🎢 Vergnügungsparks</span>
+            <span class="location-tag" data-lang="de">✈️ Flughäfen</span>
+            <span class="location-tag" data-lang="de">🏨 Hotels und Resorts</span>
+            <span class="location-tag" data-lang="de">🎪 Kinderzentren</span>
+            <span class="location-tag" data-lang="en">🛍️ Shopping malls</span>
+            <span class="location-tag" data-lang="en">🎄 Christmas markets</span>
+            <span class="location-tag" data-lang="en">🎢 Amusement parks</span>
+            <span class="location-tag" data-lang="en">✈️ Airports</span>
+            <span class="location-tag" data-lang="en">🏨 Hotels and resorts</span>
+            <span class="location-tag" data-lang="en">🎪 Children's centers</span>
+        </div>
+    </section>
+
+    <section class="cta" id="contact">
+        <div class="cta-content">
+            <p class="cta-text" data-lang="ru">Дети верят в чудеса.</p>
+            <p class="cta-text" data-lang="de">Kinder glauben an Wunder.</p>
+            <p class="cta-text" data-lang="en">Children believe in miracles.</p>
+            
+            <p class="cta-text highlight" data-lang="ru">Подарите им встречу с настоящим Сантой.<br>Который знает их имя. Который слышит их. Который отвечает.</p>
+            <p class="cta-text highlight" data-lang="de">Schenken Sie ihnen ein Treffen mit dem echten Weihnachtsmann.<br>Der ihren Namen kennt. Der sie hört. Der antwortet.</p>
+            <p class="cta-text highlight" data-lang="en">Give them a meeting with the real Santa.<br>Who knows their name. Who hears them. Who answers.</p>
+            
+            <h2 class="cta-title">🎅 <span>SANTA BOX</span> 🎅</h2>
+            
+            <a href="mailto:info@santabox.com" class="cta-button" data-lang="ru">🎁 СТАТЬ ПАРТНЁРОМ САНТЫ</a>
+            <a href="mailto:info@santabox.com" class="cta-button" data-lang="de">🎁 PARTNER DES WEIHNACHTSMANNS WERDEN</a>
+            <a href="mailto:info@santabox.com" class="cta-button" data-lang="en">🎁 BECOME SANTA'S PARTNER</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-logo">🎅 SANTA BOX</div>
+        <p class="footer-text" data-lang="ru">© 2025 SANTA BOX. Живой Санта. Персональное волшебство.</p>
+        <p class="footer-text" data-lang="de">© 2025 SANTA BOX. Lebendiger Weihnachtsmann. Persönliche Magie.</p>
+        <p class="footer-text" data-lang="en">© 2025 SANTA BOX. Live Santa. Personal magic.</p>
+    </footer>
+
+    <script>
+        // ========== SNOW ANIMATION ==========
+        function createSnowflakes() {
+            const container = document.getElementById('snowflakes');
+            const snowflakeChars = ['❄', '❅', '❆', '✻', '✼', '❉'];
+            
+            for (let i = 0; i < 50; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.innerHTML = snowflakeChars[Math.floor(Math.random() * snowflakeChars.length)];
+                snowflake.style.left = Math.random() * 100 + '%';
+                snowflake.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                snowflake.style.animationDelay = Math.random() * 10 + 's';
+                snowflake.style.fontSize = (Math.random() * 10 + 10) + 'px';
+                snowflake.style.opacity = Math.random() * 0.6 + 0.4;
+                container.appendChild(snowflake);
+            }
+        }
+        createSnowflakes();
+
+        // ========== LANGUAGE SWITCHER ==========
+        const langBtns = document.querySelectorAll('.lang-btn');
+        const langElements = document.querySelectorAll('[data-lang]');
+        
+        function setLanguage(lang) {
+            langBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.langBtn === lang);
+            });
+            
+            langElements.forEach(el => {
+                const isMatch = el.dataset.lang === lang;
+                const tag = el.tagName;
+                
+                if (tag === 'SPAN' || tag === 'A') {
+                    el.style.display = isMatch ? 'inline-flex' : 'none';
+                    if (tag === 'A') el.style.display = isMatch ? 'inline-block' : 'none';
+                } else if (tag === 'LI') {
+                    el.style.display = isMatch ? 'flex' : 'none';
+                } else {
+                    el.style.display = isMatch ? 'block' : 'none';
+                }
+            });
+            
+            document.documentElement.lang = lang;
+            localStorage.setItem('santabox-lang', lang);
+        }
+        
+        langBtns.forEach(btn => {
+            btn.addEventListener('click', () => setLanguage(btn.dataset.langBtn));
+        });
+        
+        setLanguage(localStorage.getItem('santabox-lang') || 'ru');
+
+        // ========== MEDIA UPLOAD SYSTEM ==========
+        const uploadModal = document.getElementById('uploadModal');
+        const uploadClose = document.getElementById('uploadClose');
+        const uploadDropzone = document.getElementById('uploadDropzone');
+        const uploadInput = document.getElementById('uploadInput');
+        const uploadPreview = document.getElementById('uploadPreview');
+        const previewImg = document.getElementById('previewImg');
+        const previewVideo = document.getElementById('previewVideo');
+        const uploadConfirm = document.getElementById('uploadConfirm');
+        const uploadTitle = document.getElementById('uploadTitle');
+        
+        let currentUploadTarget = null;
+        let currentFile = null;
+        
+        document.querySelectorAll('[data-upload]').forEach(el => {
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                currentUploadTarget = el.dataset.upload;
+                uploadModal.classList.add('active');
+                resetUploadPreview();
+                
+                const isVideo = currentUploadTarget.startsWith('video-');
+                uploadTitle.textContent = isVideo ? '🎅 Загрузить видео' : '🎄 Загрузить изображение';
+                uploadInput.accept = isVideo ? 'video/*' : 'image/*';
+            });
+        });
+        
+        uploadClose.addEventListener('click', () => {
+            uploadModal.classList.remove('active');
+            resetUploadPreview();
+        });
+        
+        uploadModal.addEventListener('click', (e) => {
+            if (e.target === uploadModal) {
+                uploadModal.classList.remove('active');
+                resetUploadPreview();
+            }
+        });
+        
+        uploadDropzone.addEventListener('click', () => uploadInput.click());
+        
+        uploadDropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadDropzone.classList.add('dragover');
+        });
+        
+        uploadDropzone.addEventListener('dragleave', () => {
+            uploadDropzone.classList.remove('dragover');
+        });
+        
+        uploadDropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadDropzone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) handleFile(file);
+        });
+        
+        uploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleFile(file);
+        });
+        
+        function handleFile(file) {
+            currentFile = file;
+            const isVideo = file.type.startsWith('video/');
+            const url = URL.createObjectURL(file);
+            
+            if (isVideo) {
+                previewVideo.src = url;
+                previewVideo.style.display = 'block';
+                previewImg.style.display = 'none';
+            } else {
+                previewImg.src = url;
+                previewImg.style.display = 'block';
+                previewVideo.style.display = 'none';
+            }
+            
+            uploadPreview.classList.add('active');
+        }
+        
+        function resetUploadPreview() {
+            uploadPreview.classList.remove('active');
+            previewImg.src = '';
+            previewVideo.src = '';
+            previewImg.style.display = 'none';
+            previewVideo.style.display = 'none';
+            uploadInput.value = '';
+            currentFile = null;
+        }
+        
+        uploadConfirm.addEventListener('click', () => {
+            if (!currentFile || !currentUploadTarget) return;
+            
+            const url = URL.createObjectURL(currentFile);
+            const isVideo = currentFile.type.startsWith('video/');
+            
+            let container;
+            if (currentUploadTarget === 'kiosk-main') {
+                container = document.getElementById('kioskMain');
+            } else if (currentUploadTarget === 'kiosk-secondary') {
+                container = document.getElementById('kioskSecondary');
+            } else if (currentUploadTarget === 'video-santa-classic') {
+                container = document.getElementById('videoSantaClassic');
+            } else if (currentUploadTarget === 'video-santa-russian') {
+                container = document.getElementById('videoSantaRussian');
+            } else if (currentUploadTarget === 'video-santa-german') {
+                container = document.getElementById('videoSantaGerman');
+            }
+            
+            if (container) {
+                const placeholder = container.querySelector('.media-placeholder, .video-placeholder');
+                if (placeholder) placeholder.style.display = 'none';
+                
+                const existingImg = container.querySelector('img');
+                const existingVideo = container.querySelector('video:not(.upload-preview-video)');
+                if (existingImg) existingImg.remove();
+                if (existingVideo) existingVideo.remove();
+                
+                if (isVideo) {
+                    const video = document.createElement('video');
+                    video.src = url;
+                    video.loop = true;
+                    video.muted = true;
+                    video.autoplay = true;
+                    video.playsInline = true;
+                    container.insertBefore(video, container.firstChild);
+                    
+                    const playBtn = container.querySelector('.play-btn');
+                    if (playBtn) {
+                        playBtn.style.display = 'flex';
+                        playBtn.addEventListener('click', () => {
+                            video.muted = !video.muted;
+                        });
+                    }
+                } else {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.alt = 'SANTA BOX';
+                    container.insertBefore(img, container.firstChild);
+                }
+                
+                const editBtn = container.querySelector('.edit-media-btn');
+                if (editBtn) editBtn.style.display = 'flex';
+            }
+            
+            uploadModal.classList.remove('active');
+            resetUploadPreview();
+        });
+
+        // ========== SCROLL ANIMATIONS ==========
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        document.querySelectorAll('.step, .santa-card, .exp-item').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
